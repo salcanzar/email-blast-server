@@ -41,7 +41,7 @@ io.on('connection', socket => {
       html: `${payload.message}`
     }))
 
-    from(mailOptions)
+    let obs = from(mailOptions)
     .pipe(
       concatMap(mailOption => sendMail(mailOption)),
       delay(1000)
@@ -53,6 +53,11 @@ io.on('connection', socket => {
 
         typeof d === "object" ? socket.emit('sent','Sent: '+d.response) : socket.emit('fail', d)
       })
+    })
+
+    socket.on('cancel', val => {
+      socket.emit('message', 'Cancelled!');
+      obs.unsubscribe()
     })
 
   })
